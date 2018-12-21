@@ -52,7 +52,7 @@ class Embeddings:
 
         print('word2index and index2word successfully built. Total number of different words:', len(ordered_word_list))
 
-        negative_sampling(self.word2index, self.index2word, self.sentences, 4)
+        negative_sampling(self.word2index, self.index2word, self.sentences[:100], 4, create_new=True, skipgram_file=False)
 
 
 embeddings = Embeddings(os.listdir("../posts"))

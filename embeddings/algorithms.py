@@ -3,9 +3,11 @@ from random import random
 import numpy as np
 from keras.preprocessing.sequence import skipgrams, make_sampling_table
 import pickle
+from negative_sampling_softmax import negative_sampling_softmax_model, SimilarityCallback
+
 
 def negative_sampling(word2index, index2word, sentences, K=5, create_new=True, skipgram_file=None):
-    if not create_new and skipgram_file == None:
+    if not create_new and skipgram_file is None:
         raise ValueError("'skipgram_file' must be specified if 'create_new' is set to False.")
 
     vocab_size = len(word2index)
@@ -48,6 +50,25 @@ def negative_sampling(word2index, index2word, sentences, K=5, create_new=True, s
     print([(index2word[i[0]], index2word[i[1]]) for i in couples[:10]], labels[:10])
     print('Couples:', len(couples))
     print('Labels:', len(labels))
+
+    model, validation_model = negative_sampling_softmax_model(vocab_size, vector_dim)
+
+    simulation_callback = SimilarityCallback(vocab_size, validation_size, word2index, index2word, validation_examples, validation_model)
+
+    arr_1 = np.zeros((1,))
+    arr_2 = np.zeros((1,))
+    arr_3 = np.zeros((1,))
+
+    for iteration in range(epochs):
+        idx = np.random.randint(0, len(labels) - 1)
+        arr_1[0,] = word_target[idx]
+        arr_2[0,] = word_context[idx]
+        arr_3[0,] = labels[idx]
+        loss = model.train_on_batch([arr_1, arr_2], arr_3)
+        if iteration % 100 == 0:
+            print("Iteration {}, loss={}".format(iteration, loss))
+        if iteration % 10000 == 0:
+            simulation_callback.run_sim()
 
 
 def glove(word2index, index2word, sentences):
