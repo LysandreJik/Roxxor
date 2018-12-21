@@ -2,9 +2,11 @@ import re
 from random import random
 import numpy as np
 from keras.preprocessing.sequence import skipgrams, make_sampling_table
+import pickle
 
-
-def negative_sampling(word2index, index2word, sentences, K=5):
+def negative_sampling(word2index, index2word, sentences, K=5, create_new=True, skipgram_file=None):
+    if not create_new and skipgram_file == None:
+        raise ValueError("'skipgram_file' must be specified if 'create_new' is set to False.")
 
     vocab_size = len(word2index)
     vector_dim = 300
@@ -17,16 +19,27 @@ def negative_sampling(word2index, index2word, sentences, K=5):
     validation_window = 100
     validation_examples = np.random.choice(validation_window, validation_size, replace=False)
 
-    sampling_table = make_sampling_table(vocab_size)
-    couples, labels = [], []
+    if create_new:
+        sampling_table = make_sampling_table(vocab_size)
+        couples, labels = [], []
 
-    print('Creating skipgrams for ', len(sentences), "sentences")
-    for index, sentence in enumerate(sentences):
-        if index % 100 == 0:
-            print('\r' + str(int(index*100/len(sentences))) + '%', end='')
-        couple, label = skipgrams(sentences[0], vocab_size, window_size=validation_window, sampling_table=sampling_table)
-        couples.extend(couple)
-        labels.extend(label)
+        print('Creating skipgrams for ', len(sentences), "sentences")
+        for index, sentence in enumerate(sentences):
+            if index % 100 == 0:
+                print('\r' + str(int(index*100/len(sentences))) + '%', end='')
+            couple, label = skipgrams(sentences[0], vocab_size, window_size=validation_window, sampling_table=sampling_table)
+            couples.extend(couple)
+            labels.extend(label)
+
+        if skipgram_file:
+            pickle_out = open('skipgrams/'+skipgram_file+'.pickle', 'wb')
+            pickle.dump({'couples': couples, 'labels': labels}, pickle_out)
+            pickle_out.close()
+    else:
+        pickle_in = open("skipgrams/"+skipgram_file+".pickle", "rb")
+        dict = pickle.load(pickle_in)
+        couples = dict['couples']
+        labels = dict['labels']
 
     word_target, word_context = zip(*couples)
     word_target = np.array(word_target, dtype="int32")
