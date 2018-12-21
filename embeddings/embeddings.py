@@ -12,6 +12,7 @@ class Embeddings:
         self.files = files
         self.sentences = []
 
+        print('Parsing files')
         for file in files:
             with open('../posts/' + file, encoding='utf-8') as f:
                 document = json.load(f)
@@ -26,15 +27,20 @@ class Embeddings:
                     for sentence in comment_sentences:
                         self.sentences.append(sentence)
 
+        print('Total number of sentences:', len(self.sentences))
         self.words = []
 
         for sentence in self.sentences:
             for word in Embeddings.sentence2word(sentence):
                 self.words.append(word)
 
-        print(self.words)
-        words = set(self.words)
-        print(words)
+        ordered_word_list = sorted([e for e in set(self.words)])
+
+        self.word2index = {e: i for e, i in enumerate(ordered_word_list)}
+        self.index2word = {i: e for e, i in enumerate(ordered_word_list)}
+
+        print('word2index and index2word successfully built.')
+
 
     @staticmethod
     def doc2sentence(doc):
