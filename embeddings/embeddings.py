@@ -40,16 +40,18 @@ class Embeddings:
 
         print('Ordering word list ...')
         # ordered_word_list = sorted(set([i for i in self.words if self.words.count(i) > 2]))
-        ordered_word_list = Counter(self.words)
-        print('Word list ordered !')
 
-        self.word2index = dict(ordered_word_list)
+        print(Counter(self.words).most_common(10000))
+
+        ordered_word_list = list(dict.fromkeys([item for items, c in Counter(self.words).most_common() for item in [items] * c]))
+        print('Word list ordered !')
+        print(ordered_word_list)
+
+        self.word2index = {key: value for value, key in enumerate(ordered_word_list)}
         self.index2word = {key: value for value, key in self.word2index.items()}
 
         print('word2index and index2word successfully built. Total number of different words:', len(ordered_word_list))
 
-        print(self.word2index)
-        print(self.index2word)
         negative_sampling(self.word2index, self.index2word, self.sentences, 4)
 
 
