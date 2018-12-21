@@ -1,5 +1,5 @@
-from time import sleep
 import numpy as np
+from datetime import datetime, timedelta
 
 
 def display_progress(n, length, times, cmd_size=100):
@@ -12,11 +12,17 @@ def display_progress(n, length, times, cmd_size=100):
     output += "_" * (cmd_size - progress - 1)
     output += '] '
     output += str(n) + "/" + str(length)
-    output += " Avg. " + str(mean) + "s. "
-    output += "ETA. " + str((length - n) * mean) + "s."
+    output += " Avg. " + str(int(mean)) + "s. "
+    output += "ETA. " + "%dd %dh %dm %ds" % display_hours_and_minutes(int((length - n) * mean)) + "s."
 
     print('\r' + output, end='')
 
-for i in range(400):
-    display_progress(i, 4000, np.array([0.2, 0.2, 0.2, 0.2]))
-    sleep(0.2)
+
+def display_hours_and_minutes(n):
+    """
+    Convert number of seconds into days, hours, minutes and seconds
+    :param n:
+    :return:
+    """
+    d = datetime(1, 1, 1) + timedelta(seconds=n)
+    return d.day - 1, d.hour, d.minute, d.second
