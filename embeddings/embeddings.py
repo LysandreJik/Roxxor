@@ -1,5 +1,7 @@
 import json
 import re
+import os
+from algorithms import negative_sampling, doc2sentence, sentence2word
 
 
 class Embeddings:
@@ -17,13 +19,13 @@ class Embeddings:
             with open('../posts/' + file, encoding='utf-8') as f:
                 document = json.load(f)
 
-                post_sentences = Embeddings.doc2sentence(document['post'])
+                post_sentences = doc2sentence(document['post'])
                 for sentence in post_sentences:
                     self.sentences.append(sentence)
 
                 comments = document['comments']
                 for comment in comments:
-                    comment_sentences = Embeddings.doc2sentence(comment)
+                    comment_sentences = doc2sentence(comment)
                     for sentence in comment_sentences:
                         self.sentences.append(sentence)
 
@@ -31,36 +33,16 @@ class Embeddings:
         self.words = []
 
         for sentence in self.sentences:
-            for word in Embeddings.sentence2word(sentence):
+            for word in sentence2word(sentence):
                 self.words.append(word)
 
         ordered_word_list = sorted([e for e in set(self.words)])
 
-        self.word2index = {e: i for e, i in enumerate(ordered_word_list)}
-        self.index2word = {i: e for e, i in enumerate(ordered_word_list)}
+        self.word2index = {e: i for i, e in enumerate(ordered_word_list)}
+        self.index2word = {i: e for i, e in enumerate(ordered_word_list)}
 
-        print('word2index and index2word successfully built.')
-
-
-    @staticmethod
-    def doc2sentence(doc):
-        """
-        Converts document with carriage returns to list of strings.
-        :param doc: Document we wish to split
-        :return: list of strings
-        """
-        sentences = doc.split('\n')
-        sentences = list(filter(lambda sentence: sentence not in("", " ", "\n"), sentences))
-        return sentences
-
-    @staticmethod
-    def sentence2word(sentence):
-        """
-        Converts sentence to list of words. Gets rid of non alphanumeric characters
-        :param sentence: Sentence we wish to split
-        :return: list of strings
-        """
-        return[re.sub('[^A-Za-z0-9]+', '', word) for word in sentence.replace("' ", "'").split(' ')]
+        print('word2index and index2word successfully built. Total number of different words:', len(ordered_word_list))
+        negative_sampling(self.word2index, self.index2word, self.sentences, 4)
 
 
-embeddings = Embeddings(['1013.json', '1012.json', '1011.json'])
+embeddings = Embeddings(os.listdir("../posts"))
