@@ -2,6 +2,8 @@ import json
 import re
 import os
 from algorithms import negative_sampling, doc2sentence, sentence2word
+from collections import Counter
+import time
 
 
 class Embeddings:
@@ -36,12 +38,18 @@ class Embeddings:
             for word in sentence2word(sentence):
                 self.words.append(word)
 
-        ordered_word_list = sorted([e for e in set(self.words)])
+        print('Ordering word list ...')
+        # ordered_word_list = sorted(set([i for i in self.words if self.words.count(i) > 2]))
+        ordered_word_list = Counter(self.words)
+        print('Word list ordered !')
 
-        self.word2index = {e: i for i, e in enumerate(ordered_word_list)}
-        self.index2word = {i: e for i, e in enumerate(ordered_word_list)}
+        self.word2index = dict(ordered_word_list)
+        self.index2word = {key: value for value, key in self.word2index.items()}
 
         print('word2index and index2word successfully built. Total number of different words:', len(ordered_word_list))
+
+        print(self.word2index)
+        print(self.index2word)
         negative_sampling(self.word2index, self.index2word, self.sentences, 4)
 
 
