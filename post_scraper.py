@@ -81,8 +81,9 @@ def scrape(url, file_name, driver):
 
 
 class Scrape(Thread):
-    def __init__(self):
+    def __init__(self, index):
         Thread.__init__(self)
+        self.index = i
         print('Initiating thread. Running threads :', active_count())
 
     def run(self):
@@ -106,11 +107,11 @@ for file in files:
         for post in posts:
             urls.put(post)
 
-number_of_threads = 4
+number_of_threads = 8
 threads = []
 
 for i in range(number_of_threads):
-    threads.append(Scrape())
+    threads.append(Scrape(i))
 
 [thread.start() for thread in threads]
 [thread.join() for thread in threads]
