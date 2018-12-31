@@ -3,6 +3,7 @@ import time
 from selenium import webdriver
 import json
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class Scrape(Thread):
@@ -20,7 +21,7 @@ class Scrape(Thread):
 
     def run(self):
         links = []
-        driver = webdriver.Chrome('D:/chromedriver', options=chrome_options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         website_url = "https://www.dofus.com/fr/forum/1103-discussions-generales"
         driver.get(website_url)
 

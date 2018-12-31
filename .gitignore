@@ -1,0 +1,4 @@
+.idea/
+__pycache__/
+post_urls/*.json
+posts/*.json

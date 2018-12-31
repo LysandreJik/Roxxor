@@ -1,6 +1,7 @@
 from threading import Thread, active_count
 from selenium import webdriver, common
 from selenium.webdriver.chrome.options import  Options
+from webdriver_manager.chrome import ChromeDriverManager
 import json
 import time
 from queue import LifoQueue
@@ -107,7 +108,7 @@ class Scrape(Thread):
         print('Initiating thread', i)
 
     def run(self):
-        driver = webdriver.Chrome('D:/chromedriver', options=chrome_options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         while urls.qsize():
             post = urls.get()
             scrape(post['link'], str(urls.qsize()), driver)
